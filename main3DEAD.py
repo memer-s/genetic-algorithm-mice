@@ -114,7 +114,6 @@ def avarage(arr):
 
     return sum/length
 
-plt.ion()
 
 def main():
     goal = (3,3)
@@ -147,41 +146,44 @@ def main():
         print("Use whole numbers / integers separated by a comma.")
         return
 
+    plt.ion()
+    fig, (ax1, ax2) = plt.subplots(2)
+    fig.suptitle("Genetic algorithm")
+    ax1.set_ylabel("Deviation from goal")
+    ax2.set_ylabel("Position density")
+
     total_generations = int(input_string[0])
 
-    x_values = range(total_generations)
 
     gen_arr = []
     specimen0 = []
-
-    for i in range(total_generations):
-        generations = mutation(generations, 500)
-        generations = crossover(generations)
-        generations = selection(generations, goal)
-        if i % prints == 0:
-            print("Avarage fitness score for generation " + str(i) + ": " + str(avarage(fitness(generations, goal))))
-            print("Fitness score for random specimen: " + str(fitness(generations, goal)[0]))
-
-        gen_arr.append(avarage(fitness(generations, goal)))
-        specimen0.append(fitness(generations, goal)[0])
     
-    with plt.style.context("dark_background"):
-        fig, (ax1, ax2) = plt.subplots(2)
-        fig.suptitle("Genetic algorithm")
+    def animate():
+        for _ in range(100):
+            generations = mutation(generations, 500)
+            generations = crossover(generations)
+            generations = selection(generations, goal)
+            if i % prints == 0:
+                print("Avarage fitness score for generation " + str(i) + ": " + str(avarage(fitness(generations, goal))))
+                print("Fitness score for random specimen: " + str(fitness(generations, goal)[0]))
 
-        ax1.plot(x_values, gen_arr)
-        ax1.plot(x_values, specimen0, alpha=0.4, color="green")
-        ax1.plot([0,total_generations-1], [goal_hypo, goal_hypo], alpha=0.6, color="red")
-        ax1.set_ylabel("Deviation from goal")
+            gen_arr.append(avarage(fitness(generations, goal)))
+            specimen0.append(fitness(generations, goal)[0])
+            if i % 200 == 0:
+                x_values = range(i)
+                ax1.plot(x_values, gen_arr)
+                ax1.plot(x_values, specimen0, alpha=0.4, color="green")
+                ax1.plot([0,total_generations-1], [goal_hypo, goal_hypo], alpha=0.6, color="red")
+                #ax2.hist2d(scatter_x, scatter_y, bins=[np.arange(-12.5,12.5,0.2), np.arange(-10,10,0.2)])
+                ax2.hist2d(scatter_x, scatter_y, bins=[np.arange(goal[0]-10,goal[0]+10,0.1), np.arange(goal[1]-10,goal[1]+10,0.1)])
 
-        #ax2.hist2d(scatter_x, scatter_y, bins=[np.arange(-12.5,12.5,0.2), np.arange(-10,10,0.2)])
-        ax2.hist2d(scatter_x, scatter_y, bins=[np.arange(goal[0]-10,goal[0]+10,0.1), np.arange(goal[1]-10,goal[1]+10,0.1)])
-        ax2.set_ylabel("Position density")
-        plt.show()
+                fig.canvas.draw()
+                fig.canvas.flush_events()
     
+            i+=1
 
+    ani = animate.FuncAnimation(fig, animate, fargs)
 
-print(fitness([[3.3,3.2],[2.3,2.2]], (3,3)))
 
 main()
 
